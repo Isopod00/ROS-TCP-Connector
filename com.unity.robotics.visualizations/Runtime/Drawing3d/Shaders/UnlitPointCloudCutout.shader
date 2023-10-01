@@ -28,6 +28,8 @@
                 float4 vertex : POSITION;
                 float3 uvr : TEXCOORD0;
                 float4 color : COLOR;
+
+                UNITY_VERTEX_INPUT_INSTANCE_ID // required to render properly in virtual reality
             };
 
             struct v2f
@@ -35,11 +37,18 @@
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float4 color : COLOR;
+
+                UNITY_VERTEX_OUTPUT_STEREO // required to render properly in virtual reality
             };
 
             v2f vert(appdata v)
             {
                 v2f o;
+
+                UNITY_SETUP_INSTANCE_ID(v); // required to render properly in virtual reality
+                UNITY_INITIALIZE_OUTPUT(v2f, o); // required to render properly in virtual reality
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); // required to render properly in virtual reality
+                
                 o.vertex = UnityObjectToClipPos(
                     float4(v.vertex.x, v.vertex.y, v.vertex.z, 0)
                 );
