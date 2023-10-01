@@ -12,9 +12,9 @@ public class PointCloud2VisualizerSettings : VisualizerSettingsGeneric<PointClou
 {
     public enum ColorMode
     {
-        HSV,
-        SeparateRGB,
         CombinedRGB,
+        SeparateRGB,
+        HSV,
     }
 
     [HideInInspector, SerializeField]
