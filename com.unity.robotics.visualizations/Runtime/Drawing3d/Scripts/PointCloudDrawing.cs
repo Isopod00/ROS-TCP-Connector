@@ -16,6 +16,14 @@ namespace Unity.Robotics.Visualizations
         List<int> m_Triangles = new List<int>();
         MeshRenderer m_MeshRenderer;
 
+        // Box collider for the "floor" of the map
+        private BoxCollider m_BoxCollider;
+
+        public float cameraHeight = 0.5f; // How high the camera is mounted above the floor
+        public float heightThreshold = 0.1f; // How close a point has to be to the floor to be considered part of the floor
+        private Vector3 m_Min;
+        private Vector3 m_Max;
+
         public static PointCloudDrawing Create(GameObject parent = null, int numPoints = 0, Material material = null)
         {
             GameObject newDrawingObj = new GameObject("PointCloud");
@@ -39,6 +47,10 @@ namespace Unity.Robotics.Visualizations
             mfilter.sharedMesh = m_Mesh;
 
             m_MeshRenderer = gameObject.AddComponent<MeshRenderer>();
+            m_BoxCollider = gameObject.AddComponent<BoxCollider>();
+
+            m_Min = new Vector3(0.0f, -cameraHeight, 0.0f);
+            m_Max = new Vector3(0.0f, -cameraHeight, 0.0f);
         }
 
         public void SetCapacity(int numPoints)
@@ -78,6 +90,22 @@ namespace Unity.Robotics.Visualizations
             m_Triangles.Add(start + 2);
             m_Triangles.Add(start + 1);
             SetDirty();
+
+            // Update the box collider if the point is close to the floor
+            if (point.y <= -cameraHeight + heightThreshold && point.y >= -cameraHeight - heightThreshold) {
+                UpdateMinMax(point);
+                UpdateBoxCollider();
+            }
+        }
+
+        void UpdateMinMax(Vector3 point) {
+            m_Min = Vector3.Min(m_Min, point);
+            m_Max = Vector3.Max(m_Max, point);
+        }
+
+        void UpdateBoxCollider() {
+            m_BoxCollider.center = (m_Max + m_Min) / 2;
+            m_BoxCollider.size = m_Max - m_Min;
         }
 
         public void AddTriangle(Vector3 point, Color32 color, float radius)
